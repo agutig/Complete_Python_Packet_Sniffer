@@ -2,15 +2,12 @@ from distutils.command.clean import clean
 import socket ,ctypes, sys ,elevate
 
 
-def is_admin():
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin()
-    except:
-        return False
-
-print(is_admin())
+@echo off
+%1 mshta vbscript:CreateObject("Shell.Application").ShellExecute("cmd.exe","/c %~s0 ::","","runas",1)(window.close)&&exit
+cd /d "%~dp0"
 
 def sniffer():
+    print("hey")
     translate =''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
     
     def dump(src, length=16):
@@ -32,10 +29,5 @@ def sniffer():
         print("========================================================================")
         print(dump(raw))
 
-if is_admin():
-    # Code of your program here
-    sniffer()
-else:
-    # Re-run the program with admin rights
-    elevate.elevate()
- 
+sniffer()
+elevate.elevate()
