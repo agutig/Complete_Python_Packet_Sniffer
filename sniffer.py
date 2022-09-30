@@ -1,13 +1,8 @@
 from distutils.command.clean import clean
-import socket ,ctypes, sys ,elevate
-
-
-@echo off
-%1 mshta vbscript:CreateObject("Shell.Application").ShellExecute("cmd.exe","/c %~s0 ::","","runas",1)(window.close)&&exit
-cd /d "%~dp0"
+import socket ,ctypes, sys
 
 def sniffer():
-    print("hey")
+
     translate =''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
     
     def dump(src, length=16):
@@ -29,5 +24,6 @@ def sniffer():
         print("========================================================================")
         print(dump(raw))
 
-sniffer()
-elevate.elevate()
+
+
+
