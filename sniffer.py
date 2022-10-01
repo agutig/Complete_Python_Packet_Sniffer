@@ -7,18 +7,19 @@ The main idea of this proyect is to reconvert it to my own version.
 
 
 from struct import *
-import socket,struct
+import socket,struct  #Libraries
+import coded #Program
 
 #parsing
 
-def byte2string(addr):
- return '.'.join(map(str, addr))
+def get_mac(addr):
+ return ':'.join(map('{:02x}'.format ,addr)).upper()
 
-def ethernet_head(raw_data):
+def ethernet_head(raw_data): #MAC Adress
 
     dest, src, prototype = struct.unpack('! 6s 6s H', raw_data[:14])
-    dest_mac = byte2string(dest)
-    src_mac = byte2string(src)
+    dest_mac = get_mac(dest)
+    src_mac = get_mac(src)
     proto = socket.htons(prototype)   #inner protocol.
     data = raw_data[14:]
     return dest_mac, src_mac, proto, data
@@ -48,14 +49,14 @@ def tcp_head( raw_data):
 #Main loop
 def main():
     print("Sniffer Listening")
-    s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
+    s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
     while True: 
         print("-------------------------------------------")
         raw_data, addr = s.recvfrom(65535)
         eth = ethernet_head(raw_data)
         print('\nEthernet Frame:')
-        print('Destination: {}, Source: {}, InnerProtocol: {}'.format(eth[0], eth[1],eth[2]))
-        if eth[3] == 8:
+        print('MAC Destination: {}, MAC Source: {}, InnerProtocol: {}'.format(eth[0], eth[1], coded.eth_sub_protocols.get(eth[2] ,eth[2] )))
+        if eth[2] == 8:
             ipv4 = ipv4_head(eth[3])
             print( '\t - ' + 'IPv4 Packet:')
             print('\t\t - ' + 'Version: {}, Header Length: {}, TTL:{},'.format(ipv4[1], ipv4[2], ipv4[3]))
