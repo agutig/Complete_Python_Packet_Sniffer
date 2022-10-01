@@ -1,5 +1,5 @@
-from distutils.command.clean import clean
-import socket ,ctypes, sys
+
+import socket
 
 def sniffer():
 
