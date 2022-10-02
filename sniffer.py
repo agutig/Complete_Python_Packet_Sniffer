@@ -16,6 +16,16 @@ import coded #Program
 def get_mac(addr):
     return ':'.join(map('{:02x}'.format ,addr)).upper()
 
+def get_ipv6(addr):
+    chain = ''.join(map('{:02x}'.format ,addr))
+    new_chain = ''
+    for i in range(0,len(str(chain))):
+        if i % 4 == 0 & i != 0:
+            new_chain += chain[i] + ":"
+        else:
+            new_chain += chain[i]
+    return new_chain
+
 def get_ipv4(addr):
     return '.'.join(map(str ,addr))
 
@@ -48,6 +58,25 @@ def ipv4_print(ipv4):
 
     return ipv4[3] ,ipv4[6] #Inner protocol + inner protocol data
 
+
+def ipv6_head(raw_data):
+    
+    version_header_length = raw_data[0]
+    version = version_header_length >> 4
+    #4 -> 0.5    8 ->1B         20 ->2.5     16->2B         8->1B       8->1B       128->16B    128->16B
+    #version    trafic class   flow label   paload length   next header  hop       source       dest
+    traffic_class = raw_data[1] #This isn probably wrong
+    payload_len, next_header , hop_limit , source_dir , desti_dir = struct.unpack('! H B B 16s 16s', raw_data[4:40])
+
+    return version, traffic_class ,payload_len, next_header , hop_limit , source_dir , desti_dir, raw_data[64:]
+
+def ipv6_print(ipv6):
+    print( '\t - ' + 'IPv6 Packet:     WARNING: THE INFORMATION MAY BE WORNG FOR THIS PROTOCOL'  )
+    print('\t\t - ' + 'Version: {}, Traffic Class: {} (May not be correct), Payload Length: {} ' + 'Next Header: {} , Hop Limit: {} '.format(ipv6[0], ipv6[1], ipv6[2],ipv6[3], ipv6[4]))
+
+    print('\t\t - ' + 'Source: {} --> Target:{}'.format(get_ipv6(ipv6[5]),get_ipv6(ipv6[6])))
+
+    return ipv6[7] #Inner protocol + inner protocol data
 
 def arp_packet(raw_data):
     (hardware_type, protocol_type, hardware_len, proto_len, operation ,sender_link_dir, 
@@ -115,7 +144,7 @@ def main():
         raw_data, addr = s.recvfrom(65535)
         eth = ethernet_head(raw_data)
         eth_print(eth)
-        if eth[2] == 8:
+        if eth[2] == 8: #ipv4
             ipv4 = ipv4_head(eth[3])
             trans_protocol ,trans_data = ipv4_print(ipv4)
 
@@ -129,8 +158,12 @@ def main():
             elif trans_protocol == 1: #ICMP
                 icmp = icmp_header(trans_data)
 
-        elif eth[2] == 1544:
+        elif eth[2] == 1544:  #ACK
             arp_packet(eth[3])
+
+        elif eth[2] ==  56710:
+            ipv6 = ipv6_head(eth[3])
+            ipv6_print(ipv6)
                 
 main()
 
