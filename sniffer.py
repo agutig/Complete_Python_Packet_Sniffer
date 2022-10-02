@@ -20,10 +20,11 @@ def get_ipv6(addr):
     chain = ''.join(map('{:02x}'.format ,addr))
     new_chain = ''
     for i in range(0,len(str(chain))):
-        if i % 4 == 0 & i != 0:
-            new_chain += chain[i] + ":"
+        if (i % 4 == 0) & (i !=0 ):
+            new_chain +=  ":" +chain[i] 
         else:
             new_chain += chain[i]
+
     return new_chain
 
 def get_ipv4(addr):
@@ -72,7 +73,7 @@ def ipv6_head(raw_data):
 
 def ipv6_print(ipv6):
     print( '\t - ' + 'IPv6 Packet:     WARNING: THE INFORMATION MAY BE WORNG FOR THIS PROTOCOL'  )
-    print('\t\t - ' + 'Version: {}, Traffic Class: {} (May not be correct), Payload Length: {} ' + 'Next Header: {} , Hop Limit: {} '.format(ipv6[0], ipv6[1], ipv6[2],ipv6[3], ipv6[4]))
+    print('\t\t - ' + 'Version: {}, Traffic Class: {} (May not be correct), Payload Length: {} Next Header: {} , Hop Limit: {} '.format(ipv6[0], ipv6[1], ipv6[2],ipv6[3], ipv6[4]))
 
     print('\t\t - ' + 'Source: {} --> Target:{}'.format(get_ipv6(ipv6[5]),get_ipv6(ipv6[6])))
 
