@@ -38,8 +38,7 @@ def ipv4_head(raw_data):
     version = version_header_length >> 4
     header_length = (version_header_length & 15) * 4
     ttl, proto, src, target = struct.unpack('! 8x B B 2x 4s 4s', raw_data[:20])
-    data = raw_data[header_length:]
-    return version, header_length, ttl, proto, get_ipv4(src), get_ipv4(target), data[header_length:]
+    return version, header_length, ttl, proto, get_ipv4(src), get_ipv4(target), raw_data[header_length:]
 
 
 def ipv4_print(ipv4):
@@ -62,6 +61,30 @@ def tcp_head( raw_data):
     flag_fin = offset_reserved_flags & 1
     return src_port, dest_port, sequence, acknowledgment, flag_urg, flag_ack, flag_psh, flag_rst, flag_syn, flag_fin, raw_data[offset:]
 
+def tcp_print(tcp):
+    print('\t\t -> ' + 'TCP Segment:')
+    print('\t\t\t - ' + 'Source Port: {}, Destination Port: {}'.format(tcp[0], tcp[1]))
+    print('\t\t\t - ' + 'Sequence: {}, Acknowledgment: {}'.format(tcp[2], tcp[3]))
+    print('\t\t\t - ' + 'Flags:')
+    print('\t\t\t - ' + 'URG: {}, ACK: {}, PSH:{}'.format(tcp[4], tcp[5], tcp[6]))
+    print('\t\t\t - ' +'RST: {}, SYN: {}, FIN:{}'.format(tcp[7], tcp[8], tcp[9]))
+
+def udp_head(data):
+    src_port, dest_port, size = struct.unpack('! H H 2x H' ,data[:8])
+    print('\t\t -> ' + 'UDP Segment:')
+    print('\t\t\t - ' + "Source port: " + str(src_port))
+    print('\t\t\t - ' + "Destination port: " + str(dest_port))
+    print('\t\t\t - ' + "Size: " + str(size))
+    return src_port, dest_port, size, data[8:]
+
+def icmp_header(data):
+    icmp_type, code ,checksum = struct.unpack('! B B H',data[:4])
+    print('\t\t -> ' + 'ICMP Segment:')
+    print('\t\t\t - ' + "Type:" + str(icmp_type))
+    print('\t\t\t - ' + "Code:" + str(code))
+    print('\t\t\t - ' + "Checksum:" + str(checksum))
+    return icmp_type, code ,checksum, data[4:]
+
 #Main loop
 def main():
     print("Sniffer Listening")
@@ -74,14 +97,17 @@ def main():
         if eth[2] == 8:
             ipv4 = ipv4_head(eth[3])
             trans_protocol ,trans_data = ipv4_print(ipv4)
+
             if trans_protocol == 6: #TCP 
                 tcp = tcp_head(trans_data)
-                print('TCP Segment:')
-                print('Source Port: {}, Destination Port: {}'.format(tcp[0], tcp[1]))
-                print('Sequence: {}, Acknowledgment: {}'.format(tcp[2], tcp[3]))
-                print('Flags:')
-                print('URG: {}, ACK: {}, PSH:{}'.format(tcp[4], tcp[5], tcp[6]))
-                print('RST: {}, SYN: {}, FIN:{}'.format(tcp[7], tcp[8], tcp[9]))
+                tcp_print(tcp)
+            
+            elif trans_protocol == 17: #ICMP
+                udp = udp_head(trans_data)
+
+            elif trans_protocol == 1: #ICMP
+                icmp = icmp_header(trans_data)
+                
 main()
 
 
