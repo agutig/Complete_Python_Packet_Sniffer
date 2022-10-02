@@ -49,6 +49,25 @@ def ipv4_print(ipv4):
     return ipv4[3] ,ipv4[6] #Inner protocol + inner protocol data
 
 
+def arp_packet(raw_data):
+    (hardware_type, protocol_type, hardware_len, proto_len, operation ,sender_link_dir, 
+    sender_net_dir, target_link_dir, target_net_dir) = struct.unpack( '! H H B B H 6s 4s 6s 4s', raw_data[:28])
+    if hardware_type == 1:
+        hardware_type = "1 (ethernet)"
+    
+    if operation == 1:
+        operation = "1 (REQUEST)"
+    elif operation == 2:
+        operation = "2 (RESPONSE)"
+
+    print( '\t - ' + 'ARP Packet:')
+    print('\t\t - ' + 'Hardware type: {}, Protocol type {}, Hardware Len:{}, Protocol Len:{}, '.format(hardware_type, protocol_type, hardware_len ,proto_len))
+    print('\t\t - ' + 'FROM: MAC: {} || IP: {}  ------>  TO: MAC: {} || IP: {}'.format(get_mac(sender_link_dir),get_ipv4(sender_net_dir)
+    ,get_mac(target_link_dir),get_ipv4(target_net_dir )))
+    print('\t\t - ' + 'Operation {}'.format(operation))
+    
+
+
 #Transport Layer
 def tcp_head( raw_data):
     (src_port, dest_port, sequence, acknowledgment, offset_reserved_flags) = struct.unpack( '! H H L L H', raw_data[:14])
@@ -85,10 +104,12 @@ def icmp_header(data):
     print('\t\t\t - ' + "Checksum:" + str(checksum))
     return icmp_type, code ,checksum, data[4:]
 
-#Main loop
+#Main loop  
 def main():
+
     print("Sniffer Listening")
     s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
+
     while True: 
         print("-------------------------------------------")
         raw_data, addr = s.recvfrom(65535)
@@ -107,6 +128,9 @@ def main():
 
             elif trans_protocol == 1: #ICMP
                 icmp = icmp_header(trans_data)
+
+        elif eth[2] == 1544:
+            arp_packet(eth[3])
                 
 main()
 

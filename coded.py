@@ -1,8 +1,9 @@
 #Source https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
 eth_sub_protocols = {  #TODO only works ipv4 --> Net layer
-
-    8:"IPv4"
+    8:"IPv4",     #0x0800
+    1544:"ARP",   #0x0806
+    56710:"IPv6"  #0x86DD
 
 }
 
