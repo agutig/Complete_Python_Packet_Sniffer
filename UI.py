@@ -8,11 +8,12 @@ def main():
     try:
 
         hide = True if  (sys.argv[1] == "c") else False
-
+        iface_array = []
         iface_number = 0
         for i in net_if_addrs().items():
             print("")
             print('\t\t' + str(iface_number) + '.  Iface: '+ str(i[0]))
+            iface_array.push(str(i[0]))
             for j in i[1:]:
                 for h in j:
                     address = ""
@@ -34,7 +35,16 @@ def main():
         print("")
         print('\t\t' + str(iface_number) + '. ALL ifaces')
         print("")
-        print("Sniffer Listening -> Local Machine:")  
+
+        keep_loop = False
+
+        while keep_loop:
+            choice = input('Select an Iface option (number + enter) :')
+            try:
+                iface_array[choice]
+                keep_loop = False
+            except IndexError:
+                print("invalid value, choose an option between 0 and " + len(iface_array))
     
     except  IndexError:
         print("please init with a mode: c to hide local addresses , p for visualizating all adresses ")
