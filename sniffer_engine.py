@@ -8,7 +8,7 @@ The main idea of this proyect is to reconvert it to my own version.
 
 from struct import *
 import socket,struct  #Libraries
-from psutil import net_if_addrs
+
 import coded #Program
 
 ##parsing
@@ -140,14 +140,6 @@ def main():
 
     s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
     
-    for i in net_if_addrs().items():
-        print('\t\t'+ str(i[0]))
-        for j in i[1:]:
-            for h in j:
-                print('\t\t  - ' + 'family: ' + str(h.family).split(".")[1] + ' | address: ' + str(h.address) + ' | netmask: ' + str(h.netmask) + ' | broadcast: ' + str(h.broadcast)  + ' | ptp: ' + str(h.ptp))
-        
-        
-    print("Sniffer Listening -> Local Machine:" + str(socket.gethostbyname(socket.gethostname())))
 
     while True: 
         print("-------------------------------------------")
