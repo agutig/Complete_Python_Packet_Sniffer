@@ -13,7 +13,7 @@ def main():
         for i in net_if_addrs().items():
             print("")
             print('\t\t' + str(iface_number) + '.  Iface: '+ str(i[0]))
-            iface_array.push(str(i[0]))
+            iface_array.append(str(i[0]))
             for j in i[1:]:
                 for h in j:
                     address = ""
@@ -34,17 +34,21 @@ def main():
             iface_number += 1    
         print("")
         print('\t\t' + str(iface_number) + '. ALL ifaces')
+        iface_array.append("ALL")
         print("")
 
-        keep_loop = False
+        keep_loop = True
 
-        while keep_loop:
+        while keep_loop == True:
             choice = input('Select an Iface option (number + enter) :')
             try:
-                iface_array[choice]
+                iface_array[int(choice)]
                 keep_loop = False
-            except IndexError:
-                print("invalid value, choose an option between 0 and " + len(iface_array))
+                print("Sniffer listening for: " + iface_array[int(choice)])
+                break
+
+            except (IndexError , TypeError):
+                print("invalid value, choose an option between 0 and " + str(len(iface_array) - 1))
     
     except  IndexError:
         print("please init with a mode: c to hide local addresses , p for visualizating all adresses ")
